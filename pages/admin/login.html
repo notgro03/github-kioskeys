@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login - Kioskeys</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 32px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 59, 142, 0.15);
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      color: var(--primary-blue);
+    }
+
+    .form-group input {
+      padding: 12px;
+      border: 2px solid rgba(0, 59, 142, 0.1);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+    }
+
+    .login-button {
+      background: var(--card-gradient);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 59, 142, 0.2);
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 16px;
+      text-align: center;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <form id="loginForm" class="login-form">
+      <h2 style="text-align: center; color: var(--primary-blue);">Panel de Administración</h2>
+      
+      <div class="form-group">
+        <label for="username">Usuario</label>
+        <input type="text" id="username" name="username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+
+      <button type="submit" class="login-button">
+        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+      </button>
+
+      <div id="errorMessage" class="error-message"></div>
+    </form>
+  </div>
+
+  <script type="module">
+    import { auth } from '/src/admin/js/auth.js';
+    import { showError } from '/src/admin/js/ui.js';
+
+    // Redirect if already logged in
+    if (auth.isAuthenticated()) {
+      window.location.href = '/admin/';
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      const success = await auth.login(username, password);
+      if (success) {
+        window.location.href = '/admin/';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+import { db } from '../db.js';
+import { showSuccess, showError, showConfirm } from '../ui.js';
+import { UPLOADCARE_CONFIG } from '../config.js';
+
+export class BrandsManager {
+  constructor() {
+    this.initializeEventListeners();
+    this.loadBrands();
+  }
+
+  initializeEventListeners() {
+    const form = document.getElementById('brandForm');
+    if (form) {
+      form.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
+
+    // Initialize Uploadcare widget
+    const uploader = document.querySelector('[role=uploadcare-uploader]');
+    if (uploader) {
+      const widget = uploadcare.Widget(uploader, UPLOADCARE_CONFIG);
+
+      widget.onUploadComplete((fileInfo) => {
+        document.getElementById('brandLogo').value = fileInfo.cdnUrl;
+        document.getElementById('logoPreview').src = fileInfo.cdnUrl;
+      });
+    }
+  }
+
+  async loadBrands() {
+    try {
+      const brands = await db.brands.toArray();
+      this.renderBrands(brands);
+    } catch (error) {
+      showError('Error al cargar las marcas');
+      console.error(error);
+    }
+  }
+
+  renderBrands(brands) {
+    const container = document.getElementById('brandsList');
+    if (!container) return;
+
+    container.innerHTML = brands.map(brand => `
+      <div class="brand-card" data-id="${brand.id}">
+        <img src="${brand.logo}" alt="${brand.name}" class="brand-logo">
+        <div class="brand-info">
+          <h3>${brand.name}</h3>
+          <p>${brand.type}</p>
+        </div>
+        <div class="brand-actions">
+          <button onclick="brandsManager.editBrand(${brand.id})" class="edit-btn">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button onclick="brandsManager.deleteBrand(${brand.id})" class="delete-btn">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async handleSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const brandData = {
+      name: formData.get('name'),
+      type: formData.get('type'),
+      logo: formData.get('logo')
+    };
+
+    try {
+      if (formData.get('id')) {
+        await db.brands.update(parseInt(formData.get('id')), brandData);
+        showSuccess('Marca actualizada correctamente');
+      } else {
+        await db.brands.add(brandData);
+        showSuccess('Marca agregada correctamente');
+      }
+      
+      e.target.reset();
+      document.getElementById('logoPreview').src = '/placeholder-logo.png';
+      this.loadBrands();
+    } catch (error) {
+      showError('Error al guardar la marca');
+      console.error(error);
+    }
+  }
+
+  async editBrand(id) {
+    try {
+      const brand = await db.brands.get(id);
+      if (!brand) return;
+
+      const form = document.getElementById('brandForm');
+      if (!form) return;
+
+      form.elements['id'].value = brand.id;
+      form.elements['name'].value = brand.name;
+      form.elements['type'].value = brand.type;
+      form.elements['logo'].value = brand.logo;
+      document.getElementById('logoPreview').src = brand.logo;
+    } catch (error) {
+      showError('Error al cargar la marca');
+      console.error(error);
+    }
+  }
+
+  async deleteBrand(id) {
+    const result = await showConfirm('¿Estás seguro de que deseas eliminar esta marca?');
+    if (!result.isConfirmed) return;
+
+    try {
+      await db.brands.delete(id);
+      showSuccess('Marca eliminada correctamente');
+      this.loadBrands();
+    } catch (error) {
+      showError('Error al eliminar la marca');
+      console.error(error);
+    }
+  }
+}

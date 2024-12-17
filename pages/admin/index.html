@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Administración - Kioskeys</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module" src="/src/admin/js/main.js"></script>
+</head>
+<body>
+  <nav>
+    <div class="logo">
+      <a href="/"><img src="/logo.svg" alt="Kioskeys" data-logo></a>
+    </div>
+    <div class="nav-links">
+      <a href="/">Inicio</a>
+      <a href="/admin" class="active">Panel Admin</a>
+      <button data-logout class="logout-button">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Panel de Administración</h1>
+        <p>Gestiona el contenido de tu sitio</p>
+      </div>
+    </section>
+
+    <div class="admin-container">
+      <nav class="admin-nav">
+        <a href="#brands" class="active">Marcas</a>
+        <a href="#products">Productos</a>
+        <a href="#categories">Categorías</a>
+        <a href="#settings">Configuración</a>
+      </nav>
+
+      <section id="brands" class="admin-section">
+        <div class="section-title">
+          <h2>Gestión de Marcas</h2>
+        </div>
+        
+        <form id="brandForm">
+          <input type="hidden" name="id">
+          
+          <div class="form-group">
+            <label>Logo de la Marca</label>
+            <input type="hidden" role="uploadcare-uploader" data-images-only="true">
+            <input type="hidden" name="logo" id="brandLogo">
+            <img id="logoPreview" src="/placeholder-logo.png" class="preview-image">
+          </div>
+
+          <div class="form-group">
+            <label>Nombre de la Marca</label>
+            <input type="text" name="name" required>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo</label>
+            <select name="type" required>
+              <option value="car">Automóvil</option>
+              <option value="motorcycle">Motocicleta</option>
+              <option value="commercial">Comercial</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Guardar Marca
+          </button>
+        </form>
+
+        <div id="brandsList" class="grid">
+          <!-- Brands will be rendered here -->
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
